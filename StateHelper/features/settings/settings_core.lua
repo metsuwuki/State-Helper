@@ -408,93 +408,108 @@ function hall.settings()
 		end
 	elseif tab_settings == 2 then
 		gui.Text(25, 12, 'Получаемые сообщения', bold_font[1])
-		new_draw(37, 431)
+		new_draw(37, 108)
 		
-		for i = 0, 10 do
+		for i = 0, 1 do
 			gui.DrawLine({16, 72 + (i * 36)}, {602, 72 + (i * 36)}, cl.line)
 		end
 		
-		gui.Text(26, 46, 'Скрыть частые подсказки сервера', font[3])
+		gui.Text(26, 46, 'Скрыть сообщения чата (общий фильтр)', font[3])
 		imgui.SetCursorPos(imgui.ImVec2(561, 42))
-		if gui.Switch(u8'##Скрыть частые подсказки', setting.put_mes[1]) then
-			setting.put_mes[1] = not setting.put_mes[1]
+		if gui.Switch(u8'##Мастер скрытия чата', setting.hide_chat) then
+			setting.hide_chat = not setting.hide_chat
 			save()
 		end
-		gui.Text(26, 82, 'Скрыть объявления в СМИ от игроков', font[3])
+
+		if setting.hide_chat then
+			if gui.Button(u8'Настроить', {370, 46}, {130, 20}) then
+				imgui.OpenPopup(u8'Настроить фильтры чата')
+			end
+		else
+			imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
+			imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
+			imgui.PushStyleColor(imgui.Col.ButtonActive, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
+			gui.Button(u8'Настроить', {370, 46}, {130, 20}, false)
+			imgui.PopStyleColor(3)
+		end
+
+		if imgui.BeginPopupModal(u8'Настроить фильтры чата', null, imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoMove + imgui.WindowFlags.NoTitleBar) then
+			imgui.SetCursorPos(imgui.ImVec2(0, 0))
+			imgui.BeginChild(u8'Настройки скрытия', imgui.ImVec2(730, 600), false, imgui.WindowFlags.NoMove + imgui.WindowFlags.NoScrollWithMouse + imgui.WindowFlags.NoScrollbar)
+			
+			imgui.SetCursorPos(imgui.ImVec2(710, 2))
+			if imgui.InvisibleButton(u8'##Закрыть окно фильтров', imgui.ImVec2(20, 20)) then
+				save()
+				imgui.CloseCurrentPopup()
+			end
+			if imgui.IsItemHovered() then
+				gui.DrawCircle({721, 12}, 7, imgui.ImVec4(0.98, 0.30, 0.38, 1.00))
+			else
+				gui.DrawCircle({721, 12}, 7, imgui.ImVec4(0.98, 0.40, 0.38, 1.00))
+			end
+			
+			gui.Draw({16, 16}, {698, 584}, cl.tab, 7, 15)
+
+			local items = {
+				{ 'Скрыть частые подсказки сервера', setting.put_mes, 1 },
+				{ 'Скрыть объявления в СМИ от игроков', setting.put_mes, 2 },
+				{ 'Скрыть репортажи и новости от СМИ', setting.put_mes, 3 },
+				{ 'Скрыть удачи игроков при открытии ларцов', setting.put_mes, 4 },
+				{ 'Скрыть информацию о сборе средств в организации', setting.put_mes, 5 },
+				{ 'Скрыть сообщения в вип чате', setting.put_mes, 6 },
+				{ 'Скрыть сообщения о лотерее', setting.put_mes, 7 },
+				{ 'Скрыть государственные новости', setting.put_mes, 8 },
+				{ 'Скрыть сообщения рации департамента', setting.put_mes, 9 },
+				{ 'Скрыть сообщения рации организации', setting.put_mes, 10 },
+				{ 'Скрыть сообщения о кладах', setting.chat_filters, 'treasure' }, -- без скрытия, дописать
+				{ 'Скрыть сообщения об отелях', setting.chat_filters, 'hotels' },  -- без скрытия, дописать
+				{ 'Скрыть сообщения о списанных бронежилетах', setting.chat_filters, 'armor_warehouse' },  -- без скрытия, дописать
+				{ 'Скрыть сообщения о гонке вооружений', setting.chat_filters, 'arms_race' },  -- без скрытия, дописать
+				{ 'Скрыть сообщения о качестве транспорта', setting.chat_filters, 'car_quality' }  -- без скрытия, дописать
+			}
+
+			for i, item in ipairs(items) do
+				local name = item[1]
+				local data_table = item[2]
+				local key = item[3]
+				
+				local y_pos = 26 + ((i-1) * 36)
+				gui.Text(26, y_pos, name, font[3])
+				
+				imgui.SetCursorPos(imgui.ImVec2(640, y_pos - 4)) 
+				if gui.Switch(u8'##hide_item_'..i, data_table[key]) then
+					data_table[key] = not data_table[key]
+					save()
+				end
+			end
+
+			imgui.Dummy(imgui.ImVec2(0, 20))
+			imgui.EndChild()
+			imgui.Dummy(imgui.ImVec2(0, 13))
+			imgui.EndPopup()
+		end
+		
+		gui.Text(26, 82, 'Заменить сообщения о флуде всплывающей надписью', font[3])
 		imgui.SetCursorPos(imgui.ImVec2(561, 77))
-		if gui.Switch(u8'##Скрыть объявления в СМИ от игроков', setting.put_mes[2]) then
-			setting.put_mes[2] = not setting.put_mes[2]
-			save()
-		end
-		gui.Text(26, 118, 'Скрыть репортажи и новости от СМИ', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 113))
-		if gui.Switch(u8'##Скрыть репортажи и новости от СМИ', setting.put_mes[3]) then
-			setting.put_mes[3] = not setting.put_mes[3]
-			save()
-		end
-		gui.Text(26, 154, 'Скрыть удачи игроков при открытии ларцов', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 149))
-		if gui.Switch(u8'##Скрыть удачи игроков при открытии ларцов', setting.put_mes[4]) then
-			setting.put_mes[4] = not setting.put_mes[4]
-			save()
-		end
-		gui.Text(26, 190, 'Скрыть информацию о сборе средств в организации', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 185))
-		if gui.Switch(u8'##Скрыть информацию о сборе средств в организации', setting.put_mes[5]) then
-			setting.put_mes[5] = not setting.put_mes[5]
-			save()
-		end
-		gui.Text(26, 226, 'Скрыть сообщения в вип чате', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 221))
-		if gui.Switch(u8'##Скрыть сообщения в вип чате', setting.put_mes[6]) then
-			setting.put_mes[6] = not setting.put_mes[6]
-			save()
-		end
-		gui.Text(26, 262, 'Скрыть сообщения о лотерее', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 257))
-		if gui.Switch(u8'##Скрыть сообщения о лотерее', setting.put_mes[7]) then
-			setting.put_mes[7] = not setting.put_mes[7]
-			save()
-		end
-		gui.Text(26, 298, 'Скрыть государственные новости', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 293))
-		if gui.Switch(u8'##Скрыть государственные новости', setting.put_mes[8]) then
-			setting.put_mes[8] = not setting.put_mes[8]
-			save()
-		end
-		gui.Text(26, 334, 'Скрыть сообщения рации департамента', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 329))
-		if gui.Switch(u8'##Скрыть сообщения рации департамента', setting.put_mes[9]) then
-			setting.put_mes[9] = not setting.put_mes[9]
-			save()
-		end
-		gui.Text(26, 370, 'Скрыть сообщения рации организации', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 365))
-		if gui.Switch(u8'##Скрыть сообщения рации организации', setting.put_mes[10]) then
-			setting.put_mes[10] = not setting.put_mes[10]
-			save()
-		end
-		gui.Text(26, 406, 'Заменить сообщения о флуде всплывающей надписью', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 401))
 		if gui.Switch(u8'##Заменить сообщение о флуде', setting.replace_not_flood) then
 			setting.replace_not_flood = not setting.replace_not_flood
 			save()
 		end
-		gui.Text(26, 442, 'Изменить цвет ника по цвету организации', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 437))
+		gui.Text(26, 118, 'Изменить цвет ника по цвету организации', font[3])
+		imgui.SetCursorPos(imgui.ImVec2(561, 113))
 		if gui.Switch(u8'##Цветные ники', setting.color_nick) then
 			setting.color_nick = not setting.color_nick
 			save()
 		end
 		if setting.color_nick then
-			if gui.Button(u8'Настроить', {370, 442}, {130, 20}) then
+			if gui.Button(u8'Настроить', {370, 118}, {130, 20}) then
 				imgui.OpenPopup(u8'Настроить цвет ника')
 			end
 		else
 			imgui.PushStyleColor(imgui.Col.Button, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
 			imgui.PushStyleColor(imgui.Col.ButtonHovered, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
 			imgui.PushStyleColor(imgui.Col.ButtonActive, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
-			gui.Button(u8'Настроить', {370, 442}, {130, 20}, false)
+			gui.Button(u8'Настроить', {370, 118}, {130, 20}, false)
 			imgui.PopStyleColor(3)
 		end
 		if imgui.BeginPopupModal(u8'Настроить цвет ника', null, imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoMove + imgui.WindowFlags.NoTitleBar) then
@@ -541,188 +556,188 @@ function hall.settings()
 			imgui.EndPopup()
 		end
 
-		gui.Text(25, 487, 'Отыгровки', bold_font[1])
-		new_draw(512, 694)
+		gui.Text(25, 164, 'Отыгровки', bold_font[1])
+		new_draw(189, 694)
 		
-		gui.Text(26, 521, 'Корректор чата', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 516))
+		gui.Text(26, 198, 'Корректор чата', font[3])
+		imgui.SetCursorPos(imgui.ImVec2(561, 193))
 		if gui.Switch(u8'##Корректор чата', setting.chat_corrector) then
 			setting.chat_corrector = not setting.chat_corrector
 			save()
 		end
-		gui.TextInfo({26, 540}, {'Автоматически делает первую букву заглавной, ставит точку в конце,', 'пробел после запятой и исправляет регистр после знаков . ? !'})
-		gui.DrawLine({16, 575}, {602, 575}, cl.line)
+		gui.TextInfo({26, 217}, {'Автоматически делает первую букву заглавной, ставит точку в конце,', 'пробел после запятой и исправляет регистр после знаков . ? !'})
+		gui.DrawLine({16, 252}, {602, 252}, cl.line)
 
-		gui.Text(26, 585, 'Автокоррекция отыгровок /me, /do, /todo', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 580))
+		gui.Text(26, 262, 'Автокоррекция отыгровок /me, /do, /todo', font[3])
+		imgui.SetCursorPos(imgui.ImVec2(561, 257))
 		if gui.Switch(u8'##Автокоррекция отыгровок', setting.auto_edit) then
-			setting.auto_edit = not setting.auto_edit
+		setting.auto_edit = not setting.auto_edit
 			save()
 		end
-		gui.DrawLine({16, 611}, {602, 611}, cl.line)
+		gui.DrawLine({16, 288}, {602, 288}, cl.line)
 
-		gui.Text(26, 621, 'Автоотыгровка при принятии документов', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 616))
+		gui.Text(26, 298, 'Автоотыгровка при принятии документов', font[3])
+		imgui.SetCursorPos(imgui.ImVec2(561, 293))
 		if gui.Switch(u8'##Автоотыгровка при принятии документов', setting.auto_cmd_doc) then
 			setting.auto_cmd_doc = not setting.auto_cmd_doc
 			save()
 		end
-		gui.TextInfo({26, 640}, {'При просмотре паспорта, лицензий, медицинской карты или трудовой книжки, будет', 'автоматически воспроизведена отыгровка взятия просматриваемого документа.'})
-		gui.DrawLine({16, 679}, {602, 679}, cl.line)
+		gui.TextInfo({26, 317}, {'При просмотре паспорта, лицензий, медицинской карты или трудовой книжки, будет', 'автоматически воспроизведена отыгровка взятия просматриваемого документа.'})
+		gui.DrawLine({16, 356}, {602, 356}, cl.line)
 
-		gui.Text(26, 689, 'Автоотыгровка при закрытии документов', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 685))
+		gui.Text(26, 366, 'Автоотыгровка при закрытии документов', font[3])
+		imgui.SetCursorPos(imgui.ImVec2(561, 362))
 		if gui.Switch(u8'##Автоотыгровка при закрытии документов', setting.auto_close_doc) then
 			setting.auto_close_doc = not setting.auto_close_doc
 			save()
 		end
-		gui.TextInfo({26, 708}, {'При закрытии окна с документами в чате автоматически будет воспроизведена отыгровка.'})
-		gui.DrawLine({16, 737}, {602, 737}, cl.line)
+		gui.TextInfo({26, 385}, {'При закрытии окна с документами в чате автоматически будет воспроизведена отыгровка.'})
+		gui.DrawLine({16, 414}, {602, 414}, cl.line)
 
-		gui.Text(26, 747, 'Автоотыгровка дубинки', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 743))
-		if gui.Switch(u8'##Автоотыгровка дубинки', setting.auto_cmd_tazer) then
-			setting.auto_cmd_tazer = not setting.auto_cmd_tazer
-			save()
-		end
-		gui.DrawLine({16, 774}, {602, 774}, cl.line)
+        gui.Text(26, 424, 'Автоотыгровка дубинки', font[3])
+        imgui.SetCursorPos(imgui.ImVec2(561, 420))
+        if gui.Switch(u8'##Автоотыгровка дубинки', setting.auto_cmd_tazer) then
+          setting.auto_cmd_tazer = not setting.auto_cmd_tazer
+          save()
+        end
+        gui.DrawLine({16, 451}, {602, 451}, cl.line)
 
-		gui.Text(26, 784, 'Автоотыгровка /time', font[3])
-		local bool_set_time = setting.auto_cmd_time
-		setting.auto_cmd_time = gui.InputText({190, 786}, 391, setting.auto_cmd_time, u8'Автоотыгровка time', 230, u8'Введите текст отыгровки')
-		if setting.auto_cmd_time ~= bool_set_time then
-			save()
-		end
-		gui.TextInfo({26, 815}, {'После ввода команды /time, будет автоматически воспроизведена введённая Вами отыгровка.', 'Оставьте поле пустым, если не нужно.'})
-		gui.DrawLine({16, 851}, {602, 851}, cl.line)
+        gui.Text(26, 461, 'Автоотыгровка /time', font[3])
+        local bool_set_time = setting.auto_cmd_time
+        setting.auto_cmd_time = gui.InputText({190, 463}, 391, setting.auto_cmd_time, u8'Автоотыгровка time', 230, u8'Введите текст отыгровки')
+        if setting.auto_cmd_time ~= bool_set_time then
+          save()
+        end
+        gui.TextInfo({26, 492}, {'После ввода команды /time, будет автоматически воспроизведена введённая Вами отыгровка.', 'Оставьте поле пустым, если не нужно.'})
+        gui.DrawLine({16, 528}, {602, 528}, cl.line)
 
-		gui.Text(26, 861, 'Автоотыгровка /r', font[3])
-		local bool_set_r = setting.auto_cmd_r
-		setting.auto_cmd_r = gui.InputText({190, 863}, 391, setting.auto_cmd_r, u8'Автоотыгровка r', 230, u8'Введите текст отыгровки')
-		if setting.auto_cmd_r ~= bool_set_r then
-			save()
-		end
-		gui.TextInfo({26, 892}, {'После ввода команды /r, будет автоматически воспроизведена введённая Вами отыгровка.', 'Оставьте поле пустым, если не нужно.'})
-		gui.DrawLine({16, 928}, {602, 928}, cl.line)
+        gui.Text(26, 538, 'Автоотыгровка /r', font[3])
+        local bool_set_r = setting.auto_cmd_r
+        setting.auto_cmd_r = gui.InputText({190, 540}, 391, setting.auto_cmd_r, u8'Автоотыгровка r', 230, u8'Введите текст отыгровки')
+        if setting.auto_cmd_r ~= bool_set_r then
+          save()
+        end
+        gui.TextInfo({26, 569}, {'После ввода команды /r, будет автоматически воспроизведена введённая Вами отыгровка.', 'Оставьте поле пустым, если не нужно.'})
+        gui.DrawLine({16, 605}, {602, 605}, cl.line)
 
-		gui.Text(26, 938, 'Тег в рацию /r', font[3])
-		local bool_set_teg = setting.teg_r
-		setting.teg_r = gui.InputText({190, 940}, 391, setting.teg_r, u8'Тег в рацию организации', 250, u8'Введите тег для рации')
-		if setting.teg_r ~= bool_set_teg then
-			save()
-		end
-		gui.TextInfo({26, 969}, {'О необходимости использования тега уточните у лидера Вашей организации.'})
-		gui.DrawLine({16, 1005}, {602, 1005}, cl.line)
+        gui.Text(26, 615, 'Тег в рацию /r', font[3])
+        local bool_set_teg = setting.teg_r
+        setting.teg_r = gui.InputText({190, 617}, 391, setting.teg_r, u8'Тег в рацию организации', 250, u8'Введите тег для рации')
+        if setting.teg_r ~= bool_set_teg then
+          save()
+        end
+        gui.TextInfo({26, 646}, {'О необходимости использования тега уточните у лидера Вашей организации.'})
+        gui.DrawLine({16, 682}, {602, 682}, cl.line)
 
-		gui.Text(26, 1015, 'Использовать автоотыгровки при взаимодействии с оружием', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1011))
-		if gui.Switch(u8'##Автоотыгровка взаимодействия с оружием', setting.gun_func) then
-			setting.gun_func = not setting.gun_func
-			save()
-		end
-		if setting.gun_func then
-			gui.Text(26, 1041, 'Отыгровки оружия', font[3])
-			if gui.Button(u8'Редактировать...', {460, 1038}, {130, 25}) then
-				imgui.OpenPopup(u8'Редактировать отыгровки оружия')
-				gun_bool = deep_copy(setting.gun)
-			end
-		else
-			imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
-			gui.Text(26, 1041, 'Отыгровки оружия', font[3])
-			imgui.PopStyleColor(1)
-			gui.Button(u8'Редактировать...', {460, 1038}, {130, 25}, false)
-		end
-		gui.DrawLine({16, 1069}, {602, 1069}, cl.line)
+        gui.Text(26, 692, 'Использовать автоотыгровки при взаимодействии с оружием', font[3])
+        imgui.SetCursorPos(imgui.ImVec2(561, 688))
+        if gui.Switch(u8'##Автоотыгровка взаимодействия с оружием', setting.gun_func) then
+          setting.gun_func = not setting.gun_func
+          save()
+        end
+        if setting.gun_func then
+          gui.Text(26, 718, 'Отыгровки оружия', font[3])
+          if gui.Button(u8'Редактировать...', {460, 715}, {130, 25}) then
+            imgui.OpenPopup(u8'Редактировать отыгровки оружия')
+            gun_bool = deep_copy(setting.gun)
+          end
+        else
+          imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
+          gui.Text(26, 718, 'Отыгровки оружия', font[3])
+          imgui.PopStyleColor(1)
+          gui.Button(u8'Редактировать...', {460, 715}, {130, 25}, false)
+        end
+        gui.DrawLine({16, 746}, {602, 746}, cl.line)
 
-		gui.Text(26, 1079, 'Автоматический перенос длинного текста в игровом чате', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1075))
-		if gui.Switch(u8'##Автоматический перенос длинного текста в игровом чате', setting.wrap_text_chat.func) then
-			setting.wrap_text_chat.func = not setting.wrap_text_chat.func
-			save()
-		end
-		
-		if setting.wrap_text_chat.func then
-			gui.Text(26, 1106, 'Переносить текст после достижения', font[3])
-			local bool_set_wrap = setting.wrap_text_chat.num_char
-			setting.wrap_text_chat.num_char = gui.InputText({274, 1106}, 30, setting.wrap_text_chat.num_char, u8'Количество символов переносимого текста', 4, u8'Число', 'num')
-			if setting.wrap_text_chat.num_char ~= bool_set_wrap then
-				if setting.wrap_text_chat.num_char == '' then
-					setting.wrap_text_chat.num_char = '128'
-				end
-				save()
-			end
-			gui.Text(320, 1106, 'символов', font[3])
-		else
-			imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
-			gui.Text(26, 1106, 'Переносить текст после достижения', font[3])
-			gui.Text(320, 1106, 'символов', font[3])
-			gui.InputFalse(setting.wrap_text_chat.num_char, 274, 1106, 30)
-			imgui.PopStyleColor(1)
-		end
+        gui.Text(26, 756, 'Автоматический перенос длинного текста в игровом чате', font[3])
+        imgui.SetCursorPos(imgui.ImVec2(561, 752))
+        if gui.Switch(u8'##Автоматический перенос длинного текста в игровом чате', setting.wrap_text_chat.func) then
+          setting.wrap_text_chat.func = not setting.wrap_text_chat.func
+          save()
+        end
+        
+        if setting.wrap_text_chat.func then
+          gui.Text(26, 783, 'Переносить текст после достижения', font[3])
+          local bool_set_wrap = setting.wrap_text_chat.num_char
+          setting.wrap_text_chat.num_char = gui.InputText({274, 783}, 30, setting.wrap_text_chat.num_char, u8'Количество символов переносимого текста', 4, u8'Число', 'num')
+          if setting.wrap_text_chat.num_char ~= bool_set_wrap then
+            if setting.wrap_text_chat.num_char == '' then
+              setting.wrap_text_chat.num_char = '128'
+            end
+            save()
+          end
+          gui.Text(320, 783, 'символов', font[3])
+        else
+          imgui.PushStyleColor(imgui.Col.Text, imgui.ImVec4(0.50, 0.50, 0.50, 0.50))
+          gui.Text(26, 783, 'Переносить текст после достижения', font[3])
+          gui.Text(320, 783, 'символов', font[3])
+          gui.InputFalse(setting.wrap_text_chat.num_char, 274, 783, 30)
+          imgui.PopStyleColor(1)
+        end
 
-		if imgui.BeginPopupModal(u8'Редактировать отыгровки оружия', null, imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoMove + imgui.WindowFlags.NoTitleBar) then
-			imgui.SetCursorPos(imgui.ImVec2(0, 0))
-			imgui.BeginChild(u8'Редактор отыгровок оружия', imgui.ImVec2(730, 370), false, imgui.WindowFlags.NoMove + imgui.WindowFlags.NoScrollWithMouse)
-			imgui.Scroller(u8'Редактор отыгровок оружия', img_step[1][0], img_duration[1][0], imgui.HoveredFlags.AllowWhenBlockedByActiveItem)
-			local pos_y = 0
-			for i = 1, #gun_bool do
-				gui.Text(25, 14 + pos_y, gun_bool[i].name_gun, bold_font[1])
-				gui.Draw({16, 39 + pos_y}, {698, 71}, cl.tab, 7, 15)
-				gui.DrawLine({16, 74 + pos_y}, {714, 74 + pos_y}, cl.line)
-				gui.DrawCircleEmp({33.5, 56.5 + pos_y}, 10, cl.bg2, 2)
-				imgui.SetCursorPos(imgui.ImVec2(20, 43 + pos_y))
-				if imgui.InvisibleButton(u8'##Использовать отыгровку взятия оружия' .. i, imgui.ImVec2(27, 27)) then
-					gun_bool[i].take = not gun_bool[i].take
-				end
-				if imgui.IsItemActive() then
-					gui.DrawCircle({33.5, 56.5 + pos_y}, 10, cl.bg2, 2)
-				end
-				if gun_bool[i].take then
-					gui.FaText(28, 50 + pos_y, fa.CHECK, fa_font[2])
-				end
-				gun_bool[i].take_rp = gui.InputText({57, 50 + pos_y}, 637, gun_bool[i].take_rp, u8'Взятие оружия' .. i, 260, u8'Введите текст взятия оружия')
-				
-				gui.DrawCircleEmp({33.5, 92.5 + pos_y}, 10, cl.bg2, 2)
-				imgui.SetCursorPos(imgui.ImVec2(20, 79 + pos_y))
-				if imgui.InvisibleButton(u8'##Использовать отыгровку убирания оружия' .. i, imgui.ImVec2(27, 27)) then
-					gun_bool[i].put = not gun_bool[i].put
-				end
-				if imgui.IsItemActive() then
-					gui.DrawCircle({33.5, 92.5 + pos_y}, 10, cl.bg2, 2)
-				end
-				if gun_bool[i].put then
-					gui.FaText(28, 86 + pos_y, fa.CHECK, fa_font[2])
-				end
-				gun_bool[i].put_rp = gui.InputText({57, 86 + pos_y}, 637, gun_bool[i].put_rp, u8'Убирание оружия' .. i, 260, u8'Введите текст убирания оружия из виду')
-			
-				pos_y = pos_y + 115
-			end
-			
-			imgui.Dummy(imgui.ImVec2(0, 20))
-			imgui.EndChild()
-			
-			gui.DrawLine({10, 370}, {720, 370}, cl.line)
-			if gui.Button(u8'Сохранить и выйти', {10, 381}, {230, 31}) then
-				setting.gun = deep_copy(gun_bool)
-				save()
-				imgui.CloseCurrentPopup()
-			end
-			if gui.Button(u8'Отменить текущие изменения', {250, 381}, {230, 31}) then
-				imgui.CloseCurrentPopup()
-			end
-			if gui.Button(u8'Сбросить отыгровки до дефолта', {490, 381}, {230, 31}) then
-				gun_bool = deep_copy(gun_orig)
-			end
-			if gui.Button(u8'Отключить все', {250, 417}, {230, 31}) then
-				for i = 1, #gun_bool do
-					gun_bool[i].take = false
-					gun_bool[i].put = false
-				end
-			end
+        if imgui.BeginPopupModal(u8'Редактировать отыгровки оружия', null, imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoMove + imgui.WindowFlags.NoTitleBar) then
+          imgui.SetCursorPos(imgui.ImVec2(0, 0))
+          imgui.BeginChild(u8'Редактор отыгровок оружия', imgui.ImVec2(730, 370), false, imgui.WindowFlags.NoMove + imgui.WindowFlags.NoScrollWithMouse)
+          imgui.Scroller(u8'Редактор отыгровок оружия', img_step[1][0], img_duration[1][0], imgui.HoveredFlags.AllowWhenBlockedByActiveItem)
+          local pos_y = 0
+          for i = 1, #gun_bool do
+            gui.Text(25, 14 + pos_y, gun_bool[i].name_gun, bold_font[1])
+            gui.Draw({16, 39 + pos_y}, {698, 71}, cl.tab, 7, 15)
+            gui.DrawLine({16, 74 + pos_y}, {714, 74 + pos_y}, cl.line)
+            gui.DrawCircleEmp({33.5, 56.5 + pos_y}, 10, cl.bg2, 2)
+            imgui.SetCursorPos(imgui.ImVec2(20, 43 + pos_y))
+            if imgui.InvisibleButton(u8'##Использовать отыгровку взятия оружия' .. i, imgui.ImVec2(27, 27)) then
+              gun_bool[i].take = not gun_bool[i].take
+            end
+            if imgui.IsItemActive() then
+              gui.DrawCircle({33.5, 56.5 + pos_y}, 10, cl.bg2, 2)
+            end
+            if gun_bool[i].take then
+              gui.FaText(28, 50 + pos_y, fa.CHECK, fa_font[2])
+            end
+            gun_bool[i].take_rp = gui.InputText({57, 50 + pos_y}, 637, gun_bool[i].take_rp, u8'Взятие оружия' .. i, 260, u8'Введите текст взятия оружия')
+            
+            gui.DrawCircleEmp({33.5, 92.5 + pos_y}, 10, cl.bg2, 2)
+            imgui.SetCursorPos(imgui.ImVec2(20, 79 + pos_y))
+            if imgui.InvisibleButton(u8'##Использовать отыгровку убирания оружия' .. i, imgui.ImVec2(27, 27)) then
+              gun_bool[i].put = not gun_bool[i].put
+            end
+            if imgui.IsItemActive() then
+              gui.DrawCircle({33.5, 92.5 + pos_y}, 10, cl.bg2, 2)
+            end
+            if gun_bool[i].put then
+              gui.FaText(28, 86 + pos_y, fa.CHECK, fa_font[2])
+            end
+            gun_bool[i].put_rp = gui.InputText({57, 86 + pos_y}, 637, gun_bool[i].put_rp, u8'Убирание оружия' .. i, 260, u8'Введите текст убирания оружия из виду')
+          
+            pos_y = pos_y + 115
+          end
+          
+          imgui.Dummy(imgui.ImVec2(0, 20))
+          imgui.EndChild()
+          
+          gui.DrawLine({10, 370}, {720, 370}, cl.line)
+          if gui.Button(u8'Сохранить и выйти', {10, 381}, {230, 31}) then
+            setting.gun = deep_copy(gun_bool)
+            save()
+            imgui.CloseCurrentPopup()
+          end
+          if gui.Button(u8'Отменить текущие изменения', {250, 381}, {230, 31}) then
+            imgui.CloseCurrentPopup()
+          end
+          if gui.Button(u8'Сбросить отыгровки до дефолта', {490, 381}, {230, 31}) then
+            gun_bool = deep_copy(gun_orig)
+          end
+          if gui.Button(u8'Отключить все', {250, 417}, {230, 31}) then
+            for i = 1, #gun_bool do
+              gun_bool[i].take = false
+              gun_bool[i].put = false
+            end
+          end
 
-			imgui.Dummy(imgui.ImVec2(0, 13))
-			imgui.EndPopup()
-		end
+          imgui.Dummy(imgui.ImVec2(0, 13))
+          imgui.EndPopup()
+        end
 		
 		setting.chat_filters = setting.chat_filters or {}
 		if setting.chat_filters.treasure == nil then setting.chat_filters.treasure = false end
@@ -731,48 +746,6 @@ function hall.settings()
 		if setting.chat_filters.arms_race == nil then setting.chat_filters.arms_race = false end
 		if setting.chat_filters.car_quality == nil then setting.chat_filters.car_quality = false end
 
-		gui.Text(25, 1141, 'Дополнительные фильтры', bold_font[1])
-		new_draw(1166, 215)
-		gui.DrawLine({16, 1201}, {602, 1201}, cl.line)
-		gui.DrawLine({16, 1237}, {602, 1237}, cl.line)
-		gui.DrawLine({16, 1273}, {602, 1273}, cl.line)
-		gui.DrawLine({16, 1309}, {602, 1309}, cl.line)
-		gui.DrawLine({16, 1345}, {602, 1345}, cl.line)
-
-		gui.Text(26, 1175, 'Скрыть сообщения о кладах', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1171))
-		if gui.Switch(u8'##Скрыть сообщения о кладах', setting.chat_filters.treasure) then
-			setting.chat_filters.treasure = not setting.chat_filters.treasure
-			save()
-		end
-
-		gui.Text(26, 1211, 'Скрыть сообщения об отелях', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1207))
-		if gui.Switch(u8'##Скрыть сообщения об отелях', setting.chat_filters.hotels) then
-			setting.chat_filters.hotels = not setting.chat_filters.hotels
-			save()
-		end
-
-		gui.Text(26, 1247, 'Скрыть сообщения о списанных бронежилетах', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1243))
-		if gui.Switch(u8'##Скрыть сообщения о списанных бронежилетах', setting.chat_filters.armor_warehouse) then
-			setting.chat_filters.armor_warehouse = not setting.chat_filters.armor_warehouse
-			save()
-		end
-
-		gui.Text(26, 1283, 'Скрыть сообщения о гонке вооружений', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1279))
-		if gui.Switch(u8'##Скрыть сообщения о гонке вооружений', setting.chat_filters.arms_race) then
-			setting.chat_filters.arms_race = not setting.chat_filters.arms_race
-			save()
-		end
-
-		gui.Text(26, 1319, 'Скрыть сообщения о качестве транспорта', font[3])
-		imgui.SetCursorPos(imgui.ImVec2(561, 1315))
-		if gui.Switch(u8'##Скрыть сообщения о качестве транспорта', setting.chat_filters.car_quality) then
-			setting.chat_filters.car_quality = not setting.chat_filters.car_quality
-			save()
-		end
 		imgui.Dummy(imgui.ImVec2(0, 24))
 	elseif tab_settings == 3 then
 		if setting.org <= 4 then
