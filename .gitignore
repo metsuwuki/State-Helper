@@ -1,0 +1,14 @@
+*.log
+*.tmp
+*.bak
+*.old
+
+.DS_Store
+Thumbs.db
+
+StateHelper/data/cache/
+StateHelper/data/installed/
+StateHelper/data/user_commands/
+
+moonloader.log
+crashdump.txt
