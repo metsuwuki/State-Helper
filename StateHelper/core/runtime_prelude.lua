@@ -1050,6 +1050,7 @@ setting = {
 	visible_fast = 100,
 	replace_not_flood = true,
 	color_nick = false,
+	hide_chat = false,
 	replace_ic = true,
 	replace_s = true,
 	replace_c = true,

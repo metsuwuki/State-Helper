@@ -122,6 +122,8 @@ function chat_filters.create(options)
     function api.should_filter(target_setting, message, color_hex)
         api.normalize_settings(target_setting)
 
+        if setting.hide_chat ~= true then return false, nil end
+
         for _, rule in ipairs(FILTER_RULES) do
             if api.is_enabled(target_setting, rule.key) and matcher and matcher.contains and matcher.contains(message, rule.patterns) then
                 sh_core_chat_filters_log(string.format(

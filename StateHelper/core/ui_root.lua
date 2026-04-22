@@ -7175,7 +7175,7 @@ function hook.onServerMessage(color_mes, mes)
 		end
 	end
 
-	if setting.put_mes[2] then
+	if setting.put_mes[2] and setting.hide_chat then
 		if mes:find('Объявление:') or mes:find('Отредактировал сотрудник') then
 			return false
 		end
@@ -7184,7 +7184,7 @@ function hook.onServerMessage(color_mes, mes)
 		wait_book = {20, true}
 	end
 	
-	if setting.put_mes[3] then
+	if setting.put_mes[3] and setting.hide_chat then
 		if mes:find('News LS') or mes:find('News SF') or mes:find('News LV') then
 			return false
 		end
@@ -7216,7 +7216,7 @@ function hook.onServerMessage(color_mes, mes)
 		return false
 	end
 	
-	if setting.put_mes[1] then
+	if setting.put_mes[1] and setting.hide_chat then
 		if mes:find('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~') or mes:find('- Основные команды сервера: /menu /help /gps /settings') 
 		or mes:find('Пригласи друга и получи бонус в размере') or mes:find('- Донат и получение дополнительных средств arizona-rp.com/donate') 
 		or mes:find('Подробнее об обновлениях сервера') or mes:find('(Личный кабинет/Донат)') or mes:find('С помощью телефона можно заказать') 
@@ -7237,11 +7237,11 @@ function hook.onServerMessage(color_mes, mes)
 		end
 	end
 	
-	if mes:find(' испытал удачу при открытии ') or mes:find('%[Удача%] Игрок') or mes:find('Удача улыбнулась игроку') and setting.put_mes[4] then
+	if mes:find(' испытал удачу при открытии ') or mes:find('%[Удача%] Игрок') or mes:find('Удача улыбнулась игроку') and setting.put_mes[4] and setting.hide_chat then
 		return false
 	end
 
-	if mes:find('[Сбор средств](.+)организац') and setting.put_mes[5] then
+	if mes:find('[Сбор средств](.+)организац') and setting.put_mes[5] and setting.hide_chat then
 		return false
 	end
 	if run_sob then
@@ -7350,26 +7350,30 @@ function hook.onServerMessage(color_mes, mes)
 	end
 	
 	if mes:find('Купите лотерейный билет и получите возможность выиграть') or mes:find('Купить лотерейные билеты можно в уличных киосках')
-	and setting.put_mes[7] then
+	and setting.put_mes[7] and setting.hide_chat then
 		return false
 	end
 
-	if mes:find('Гос%.Новости') and mes_col == '045fb4' and setting.put_mes[8] then
+	if mes:find('Гос%.Новости') and mes_col == '045fb4' and setting.put_mes[8] and setting.hide_chat then
 		return false
 	end
 
-	if setting.put_mes[6] then
-		if mes:find('%[Информация%]{FFFFFF} Игрок (.+) приобрел ') or mes:find('%[VIP ADV%] {FFFFFF}') or mes:find('%[FOREVER%] {FFFFFF}')
-		or mes:find('%[PREMIUM%] {FFFFFF}') or mes:find('%[VIP%] {FFFFFF}') or mes:find('%[ADMIN%] {FFFFFF}') then
+	if setting.put_mes[6] and setting.hide_chat then
+		if mes:find('%[Информация%]{FFFFFF} Игрок .+ приобрел ') then
+			return false
+		end
+
+		if mes:find('^[^%a].+_%w+%[%d+%]%:') and mes_col == '4184e4' then
+			local nick = mes:match("(%w+_%w+)") or "Игрок"
 			return false
 		end
 	end
 
-	if mes:find('%[D%] ') and mes_col == '3399ff' and setting.put_mes[9] then
+	if mes:find('%[D%] ') and mes_col == '3399ff' and setting.put_mes[9] and setting.hide_chat then
 		return false
 	end
 
-	if mes:find('%[R%] ') and mes_col == '2db043' and setting.put_mes[10] then
+	if mes:find('%[R%] ') and mes_col == '2db043' and setting.put_mes[10] and setting.hide_chat then
 		return false
 	end
 	
