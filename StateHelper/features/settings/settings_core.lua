@@ -2496,7 +2496,16 @@ function hall.settings()
 			end
 			gui.TextInfo({26, 45 + 225}, {'Заполняет данные в бланке расследования за вас (дата, время, оружие...)'})
 			
-			local pos_wanted = 225 + 53 + 19
+			new_draw(16 + 278, 53)
+			gui.Text(26, 26 + 278, 'Сообщать при заезде в опасный район', font[3])
+			imgui.SetCursorPos(imgui.ImVec2(561, 21 + 278))
+			if gui.Switch(u8'##notify_ghetto', setting.police_settings.ghetto_notify) then
+				setting.police_settings.ghetto_notify = not setting.police_settings.ghetto_notify
+				save()
+			end
+			gui.TextInfo({26, 45 + 278}, {'Уведомления, когда вы заезжаете в зону опасного района.'})
+
+			local pos_wanted = 278 + 53 + 19
 			new_draw(16 + pos_wanted, 37)
 			gui.Text(26, 26 + pos_wanted, 'Список разыскиваемых на Вашем экране', font[3])
 			imgui.SetCursorPos(imgui.ImVec2(561, 21 + pos_wanted))
