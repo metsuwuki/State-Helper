@@ -875,6 +875,25 @@ function smart_ticket_func(arg)
     smartTicketState.anim.is_closing = false
 end
 
+local ghetto_notify_in_zone = false
+
+function ghetto_notify_func()
+	if setting.police_settings and setting.police_settings.ghetto_notify then
+		local zona = isCharInArea2d(PLAYER_PED, 1646.65, -2180.01, 2917.80, -864.09, false)
+		
+		if zona and not ghetto_notify_in_zone then
+			if not setting.cef_notif then
+				sampAddChatMessage("[SH] {FFFFFF}Вы заехали в Гетто!", 0xFF5345)
+			else
+				cefnotig("{FF5345}[SH] {FFFFFF}Вы заехали в Гетто!", 2000)
+			end
+			ghetto_notify_in_zone = true
+		elseif not zona and ghetto_notify_in_zone then
+			ghetto_notify_in_zone = false
+		end
+	end
+end
+
 function changeWantedPosition()
 	if setting.police_settings.wanted_list.func then
 		pos_new_wanted = lua_thread.create(function()

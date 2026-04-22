@@ -1130,6 +1130,7 @@ setting = {
 		ten_code = true,
 		auto_z = false,
 		auto_inves = false,
+		ghetto_notify = false,
 		cmd_patrol = 'patrol',
 		wanted_list = {
 			func = false, 
@@ -2590,6 +2591,9 @@ function main()
 	end
 	
 	while true do wait(0)
+
+		ghetto_notify_func()
+
 		if not setting.blockl then
 			if wanted_update then
 				local new_wanted_list = {}
