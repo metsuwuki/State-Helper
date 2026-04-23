@@ -3,6 +3,9 @@
     "channel":  "alpha",
     "size":  "modular",
     "vehicle":  "v5.0.0-alpha",
+    "AutoSu": {
+        "Winslow": "1.1"
+    },
     "repository":  "https://github.com/metsuwuki/State-Helper",
     "text":  "В проекте используется доставка файлов по manifest-схеме.\nStateHelper.lua устанавливает и обновляет структуру проекта из GitHub автоматически.\nОбновление стало безопаснее: файлы меняются через временную замену, а updater умеет дочищать устаревшие управляемые файлы.",
     "notes":  [
