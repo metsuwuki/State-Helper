@@ -15,17 +15,88 @@ local function safe_text(value)
     return tostring(value)
 end
 
-local function to_cef_utf8(value)
-    local text = safe_text(value)
-    local ok, encoding = pcall(require, 'encoding')
-    if ok and encoding and encoding.UTF8 then
-        local converted_ok, converted = pcall(function()
-            return encoding.UTF8(text)
-        end)
-        if converted_ok and type(converted) == 'string' then
-            return converted
+local function is_utf8_continuation(byte_value)
+    return byte_value and byte_value >= 0x80 and byte_value <= 0xBF
+end
+
+local function is_valid_utf8(text)
+    local index = 1
+    local length = #text
+
+    while index <= length do
+        local first = text:byte(index)
+        if first < 0x80 then
+            index = index + 1
+        elseif first >= 0xC2 and first <= 0xDF then
+            if not is_utf8_continuation(text:byte(index + 1)) then
+                return false
+            end
+            index = index + 2
+        elseif first == 0xE0 then
+            local second, third = text:byte(index + 1), text:byte(index + 2)
+            if not (second and second >= 0xA0 and second <= 0xBF and is_utf8_continuation(third)) then
+                return false
+            end
+            index = index + 3
+        elseif first >= 0xE1 and first <= 0xEC then
+            if not (is_utf8_continuation(text:byte(index + 1)) and is_utf8_continuation(text:byte(index + 2))) then
+                return false
+            end
+            index = index + 3
+        elseif first == 0xED then
+            local second, third = text:byte(index + 1), text:byte(index + 2)
+            if not (second and second >= 0x80 and second <= 0x9F and is_utf8_continuation(third)) then
+                return false
+            end
+            index = index + 3
+        elseif first >= 0xEE and first <= 0xEF then
+            if not (is_utf8_continuation(text:byte(index + 1)) and is_utf8_continuation(text:byte(index + 2))) then
+                return false
+            end
+            index = index + 3
+        elseif first == 0xF0 then
+            local second, third, fourth = text:byte(index + 1), text:byte(index + 2), text:byte(index + 3)
+            if not (second and second >= 0x90 and second <= 0xBF and is_utf8_continuation(third) and is_utf8_continuation(fourth)) then
+                return false
+            end
+            index = index + 4
+        elseif first >= 0xF1 and first <= 0xF3 then
+            if not (is_utf8_continuation(text:byte(index + 1)) and is_utf8_continuation(text:byte(index + 2)) and is_utf8_continuation(text:byte(index + 3))) then
+                return false
+            end
+            index = index + 4
+        elseif first == 0xF4 then
+            local second, third, fourth = text:byte(index + 1), text:byte(index + 2), text:byte(index + 3)
+            if not (second and second >= 0x80 and second <= 0x8F and is_utf8_continuation(third) and is_utf8_continuation(fourth)) then
+                return false
+            end
+            index = index + 4
+        else
+            return false
         end
     end
+
+    return true
+end
+
+local function to_cef_text(value)
+    local text = safe_text(value)
+    if text == '' then
+        return text
+    end
+
+    local ok, encoding = pcall(require, 'encoding')
+    if ok and encoding and encoding.UTF8 then
+        if is_valid_utf8(text) then
+            local decoded_ok, decoded = pcall(function()
+                return encoding.UTF8:decode(text)
+            end)
+            if decoded_ok and type(decoded) == 'string' then
+                return decoded
+            end
+        end
+    end
+
     return text
 end
 
@@ -73,7 +144,7 @@ end
 function notifications.sh_ui_notif_show(samp_text, duration_ms)
     duration_ms = math.max(tonumber(duration_ms) or 0, 5200)
 
-    local text_html = "<span style='color:#f2f2f2;'>" .. escape_html(to_cef_utf8(samp_text)) .. "</span>"
+    local text_html = "<span style='color:#f2f2f2;'>" .. escape_html(to_cef_text(samp_text)) .. "</span>"
     text_html = text_html:gsub("{(%x%x%x%x%x%x)}", "</span><span style='color:#%1;'>")
     text_html = escape_js_template(text_html)
     local bg_color = "rgba(26, 26, 26, 0.9)"
