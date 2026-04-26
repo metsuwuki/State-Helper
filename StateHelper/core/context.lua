@@ -27,10 +27,13 @@ local paths = require('StateHelper.core.paths')
 local context = {}
 
 function context.create(opts)
+    local script_dir = opts.script_dir or paths.sh_core_paths_get_script_dir()
+    paths.sh_core_paths_migrate_legacy_data_root(script_dir)
+
     local ctx = {
         root_dir = opts.root_dir,
-        script_dir = opts.script_dir or paths.sh_core_paths_get_script_dir(),
-        data_dir = opts.data_dir or paths.sh_core_paths_get_data_root(opts.script_dir),
+        script_dir = script_dir,
+        data_dir = opts.data_dir or paths.sh_core_paths_get_data_root(script_dir),
         entry_script = opts.entry_script,
         manifest = opts.manifest,
         state = {},

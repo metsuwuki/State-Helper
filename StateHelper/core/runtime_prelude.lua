@@ -166,7 +166,7 @@ local scr = thisScript()
 local function sh_legacy_normalize_path(path)
     return tostring(path or ''):gsub('\\', '/')
 end
-local sh_legacy_data_root = sh_legacy_normalize_path((type(sh_data_root_path) == 'function' and sh_data_root_path(dir)) or (dir .. '/State Helper'))
+local sh_legacy_data_root = sh_legacy_normalize_path((type(sh_data_root_path) == 'function' and sh_data_root_path(dir)) or (dir .. '/StateHelper'))
 local function sh_legacy_data_path(...)
     if type(sh_data_path) == 'function' then
         return sh_legacy_normalize_path(sh_data_path(dir, ...))

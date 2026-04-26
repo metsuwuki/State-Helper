@@ -125,8 +125,8 @@ function hall.actions()
 	if gui.Button(script_ac.reset == 0 and u8'Сбросить все настройки скрипта' or u8'Нажмите снова для сброса настроек', {220, 424}, {400, 27}) then 
 		script_ac.reset = script_ac.reset + 1
 		if script_ac.reset > 1 then
-			os.remove((type(sh_data_path) == 'function' and sh_data_path(dir, 'Настройки.json')) or (dir .. '/State Helper/Настройки.json'))
-			remove((type(sh_data_path) == 'function' and sh_data_path(dir, 'Отыгровки')) or (dir .. '/State Helper/Отыгровки'))
+			os.remove((type(sh_data_path) == 'function' and sh_data_path(dir, 'Настройки.json')) or (dir .. '/StateHelper/Настройки.json'))
+			remove((type(sh_data_path) == 'function' and sh_data_path(dir, 'Отыгровки')) or (dir .. '/StateHelper/Отыгровки'))
 			if not setting.cef_notif then
 				sampAddChatMessage('[SH] {FFFFFF}Настройки сброшены. Перезагрузка скрипта...', 0xFF5345)
 			else

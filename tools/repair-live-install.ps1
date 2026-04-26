@@ -2,7 +2,7 @@
 param(
     [string]$MoonloaderRoot = 'D:\Arizona RP\moonloader',
     [string]$ProjectDirName = 'StateHelper',
-    [string]$LegacyDataDirName = 'State Helper'
+    [string]$LegacyDataDirName = 'StateHelper'
 )
 
 Set-StrictMode -Version Latest

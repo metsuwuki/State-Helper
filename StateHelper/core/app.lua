@@ -112,7 +112,7 @@ if type(sh_data_root_path) ~= 'function' then
         if fallback_base == '' then
             fallback_base = '.'
         end
-        return fallback_base:gsub('/', '\\') .. '\\' .. sh_runtime_get_global_string('SH_LEGACY_DATA_DIR_NAME', 'State Helper')
+        return fallback_base:gsub('/', '\\') .. '\\' .. sh_runtime_get_global_string('SH_LEGACY_DATA_DIR_NAME', 'StateHelper')
     end
 end
 

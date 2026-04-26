@@ -57,7 +57,7 @@ local REMOTE = {
 
 local SH_ENTRY_SCRIPT_NAME = 'StateHelper.lua'
 local SH_ENTRY_PROJECT_DISPLAY_NAME = 'State Helper'
-local SH_ENTRY_LEGACY_DATA_DIR_NAME = 'State Helper'
+local SH_ENTRY_LEGACY_DATA_DIR_NAME = 'StateHelper'
 
 local function sh_entry_publish_global_constants()
     rawset(_G, 'SH_REPO_OWNER', REMOTE.owner)
