@@ -1207,7 +1207,7 @@ function download_image()
 	if not doesFileExist(sh_legacy_data_path('Изображения', 'No label.png')) then
 		download_id = downloadUrlToFile(sh_project_remote_data_url('assets/images/No label.png'), sh_legacy_data_path('Изображения', 'No label.png'), function(id, status, p1, p2)
 			if status == dlstatus.STATUS_ENDDOWNLOADDATA then 
-	tt	--image_no_label = imgui.CreatetextureFromFile(sh_legacy_data_path('Изображения', 'No label.png'))
+				--image_no_label = imgui.CreateTextureFromFile(sh_legacy_data_path('Изображения', 'No label.png'))
 			end
 		end)
 	end
