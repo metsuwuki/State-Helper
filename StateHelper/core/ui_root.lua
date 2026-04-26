@@ -4550,7 +4550,7 @@ win.fast = imgui.OnFrame(
 				local raw_name_fast = setting.fast.one_win[i].name or ''
 				local name_fast = raw_name_fast
 				if raw_name_fast:gsub('%s+', '') == '' then
-					name_fast = u8'??? ???????? [' .. i .. ']'
+					name_fast = u8'Без названия [' .. i .. ']'
 				end
 				local access = false
 				for c = 1, #cmd[1] do
@@ -4630,7 +4630,7 @@ win.fast = imgui.OnFrame(
 				local raw_name_fast = setting.fast.two_win[i].name or ''
 				local name_fast = raw_name_fast
 				if raw_name_fast:gsub('%s+', '') == '' then
-					name_fast = u8'??? ???????? [' .. i .. ']'
+					name_fast = u8'Без названия [' .. i .. ']'
 				end
 				local access = false
 				for c = 1, #cmd[1] do
@@ -9328,11 +9328,11 @@ function update_error()
 	return require('StateHelper.bootstrap.updater').sh_core_update_error()
 end
 
-function apply_settings(name_file, description_file, array_arg) --> ???????? ???????? ??? ???????? ????? ????????
+function apply_settings(name_file, description_file, array_arg) --> загрузить настройки или применить значения по умолчанию
 	return require('StateHelper.core.storage').sh_core_storage_apply_settings(dir, name_file, description_file, array_arg, decodeJson, encodeJson, setting)
 end
 
-local function convertToUTF8(value) --> ????????? ??????? ? u8
+local function convertToUTF8(value) --> рекурсивно приводит строки к u8
 	return require('StateHelper.core.moonloader_env').sh_core_table_convert_utf8(value, u8)
 end
 
@@ -9521,6 +9521,6 @@ function dec_to_key(dec_value) --> Преобразовать DEC клавиши в строковую констан
 	return nil
 end
 
---> ??? ????????? ??????? ? JSON ???????, ?????????????? ? Lua.
+--> Для сохранения таблицы в JSON сначала подготавливаем ее к Lua.
 
---> ????????? ??? ???? ???????????
+--> Сохраняем все поля рекурсивно

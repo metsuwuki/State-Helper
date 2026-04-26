@@ -5,6 +5,48 @@ StateHelper/core/notifications.lua
 
 local notifications = {}
 
+local function safe_text(value)
+    if value == nil then
+        return ''
+    end
+    if type(value) == 'string' then
+        return value
+    end
+    return tostring(value)
+end
+
+local function to_cef_utf8(value)
+    local text = safe_text(value)
+    local ok, encoding = pcall(require, 'encoding')
+    if ok and encoding and encoding.UTF8 then
+        local converted_ok, converted = pcall(function()
+            return encoding.UTF8(text)
+        end)
+        if converted_ok and type(converted) == 'string' then
+            return converted
+        end
+    end
+    return text
+end
+
+local function escape_html(value)
+    return safe_text(value)
+        :gsub('&', '&amp;')
+        :gsub('<', '&lt;')
+        :gsub('>', '&gt;')
+        :gsub('"', '&quot;')
+        :gsub("'", '&#39;')
+end
+
+local function escape_js_template(value)
+    return safe_text(value)
+        :gsub('\\', '\\\\')
+        :gsub('`', '\\`')
+        :gsub('%$', '\\$')
+        :gsub('\r', '\\r')
+        :gsub('\n', '\\n')
+end
+
 function notifications.create(ctx)
     local obj = {}
 
@@ -31,9 +73,9 @@ end
 function notifications.sh_ui_notif_show(samp_text, duration_ms)
     duration_ms = math.max(tonumber(duration_ms) or 0, 5200)
 
-    local text_html = "<span style='color:#f2f2f2;'>" .. samp_text .. "</span>"
+    local text_html = "<span style='color:#f2f2f2;'>" .. escape_html(to_cef_utf8(samp_text)) .. "</span>"
     text_html = text_html:gsub("{(%x%x%x%x%x%x)}", "</span><span style='color:#%1;'>")
-    text_html = text_html:gsub("`", "\\`")
+    text_html = escape_js_template(text_html)
     local bg_color = "rgba(26, 26, 26, 0.9)"
     local element_id = 'cefNotify_' .. math.random(1000, 9999)
     local js_code = string.format(

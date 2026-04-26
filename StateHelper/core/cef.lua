@@ -6,6 +6,7 @@ StateHelper/core/cef.lua
 local cef = {}
 
 function cef.sh_core_cef_send(message)
+    message = tostring(message or '')
     local bs = raknetNewBitStream()
     raknetBitStreamWriteInt8(bs, 220)
     raknetBitStreamWriteInt8(bs, 18)
@@ -17,6 +18,7 @@ function cef.sh_core_cef_send(message)
 end
 
 function cef.sh_core_cef_eval_js(code)
+    code = tostring(code or '')
     local bs = raknetNewBitStream()
     raknetBitStreamWriteInt8(bs, 17)
     raknetBitStreamWriteInt32(bs, 0)
@@ -28,6 +30,7 @@ function cef.sh_core_cef_eval_js(code)
 end
 
 function cef.sh_core_cef_eval(code, encoded)
+    code = tostring(code or '')
     encoded = encoded or 0
     local bs = raknetNewBitStream()
     raknetBitStreamWriteInt8(bs, 17)
