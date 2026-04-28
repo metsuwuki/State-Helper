@@ -5,6 +5,7 @@ StateHelper/core/storage.lua
 
 local storage = {}
 
+local MODERN_SETTINGS_FILE = 'settings.json'
 local LEGACY_SETTINGS_FILE = '\xcd\xe0\xf1\xf2\xf0\xee\xe9\xea\xe8.json'
 local LEGACY_COMMANDS_DIR = '\xce\xf2\xfb\xe3\xf0\xee\xe2\xea\xe8'
 local paths = require('StateHelper.core.paths')
@@ -186,6 +187,40 @@ local function get_legacy_settings_path(base_dir)
     return get_legacy_root(base_dir) .. '/' .. LEGACY_SETTINGS_FILE
 end
 
+local function get_modern_settings_path(base_dir)
+    return get_legacy_root(base_dir) .. '/' .. MODERN_SETTINGS_FILE
+end
+
+local function append_unique(list, value)
+    for _, existing in ipairs(list) do
+        if existing == value then
+            return
+        end
+    end
+
+    table.insert(list, value)
+end
+
+local function get_settings_path_candidates(base_dir, requested_name)
+    local root = get_legacy_root(base_dir)
+    local candidates = {}
+
+    if requested_name and requested_name ~= '' then
+        append_unique(candidates, root .. '/' .. requested_name)
+    end
+
+    append_unique(candidates, get_modern_settings_path(base_dir))
+    append_unique(candidates, get_legacy_settings_path(base_dir))
+
+    return candidates
+end
+
+local function sync_settings_files(base_dir, content)
+    for _, file_path in ipairs(get_settings_path_candidates(base_dir, LEGACY_SETTINGS_FILE)) do
+        atomic_write(file_path, content, true)
+    end
+end
+
 local function get_legacy_commands_dir(base_dir)
     return get_legacy_root(base_dir) .. '/' .. LEGACY_COMMANDS_DIR .. '/'
 end
@@ -217,7 +252,7 @@ function storage.sh_core_storage_save_settings(base_dir, settings_table, encode_
         return
     end
 
-    atomic_write(get_legacy_settings_path(base_dir), encode_json(settings_table), true)
+    sync_settings_files(base_dir, encode_json(settings_table))
 end
 
 function storage.sh_core_storage_save_commands(base_dir, settings_table, command_state, lfs_module, encode_json)
@@ -277,16 +312,23 @@ function storage.sh_core_storage_save_commands(base_dir, settings_table, command
 end
 
 function storage.sh_core_storage_apply_settings(base_dir, name_file, description_file, target_table, decode_json, encode_json, settings_table)
-    local file_path = get_legacy_root(base_dir) .. '/' .. name_file
-    if doesFileExist(file_path) then
+    local file_path = nil
+    for _, candidate in ipairs(get_settings_path_candidates(base_dir, name_file)) do
+        if doesFileExist(candidate) then
+            file_path = candidate
+            break
+        end
+    end
+
+    if file_path and doesFileExist(file_path) then
         print('{82E28C}Reading ' .. description_file .. '...')
         local raw_data = read_file(file_path, 'rb')
         local ok, stored_table = pcall(decode_json, raw_data)
         if ok and type(stored_table) == 'table' then
             target_table = merge_with_defaults(target_table, stored_table)
 
-            if not settings_table.first_start then
-                atomic_write(file_path, encode_json(target_table), true)
+            if not target_table.first_start then
+                sync_settings_files(base_dir, encode_json(target_table))
             end
         else
             move_corrupt_file(file_path, raw_data)
